@@ -845,3 +845,11 @@ config PROCESS_RECLAIM
 config VMSTAT_INTERVAL
 	int "Default interval in seconds to update vmstat"
 	default 1
+config GUP_BENCHMARK
+	bool "Enable infrastructure for get_user_pages_fast() benchmarking"
+	default n
+	help
+	  Provides /sys/kernel/debug/gup_benchmark that helps with testing
+	  performance of get_user_pages_fast().
+
+	  See tools/testing/selftests/vm/gup_benchmark.c
