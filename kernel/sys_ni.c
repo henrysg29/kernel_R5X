@@ -256,6 +256,9 @@ cond_syscall(sys_execveat);
 cond_syscall(sys_membarrier);
 
 /* memory protection keys */
-cond_syscall(sys_pkey_mprotect);
-cond_syscall(sys_pkey_alloc);
-cond_syscall(sys_pkey_free);
+COND_SYSCALL(pkey_mprotect);
+COND_SYSCALL(pkey_alloc);
+COND_SYSCALL(pkey_free);
+
+/* restartable sequence */
+COND_SYSCALL(rseq);
