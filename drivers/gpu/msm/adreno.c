@@ -61,7 +61,6 @@ MODULE_PARM_DESC(swfdetect, "Enable soft fault detection");
 
 #define KGSL_LOG_LEVEL_DEFAULT 0
 
-static void adreno_input_work(struct work_struct *work);
 static unsigned int counter_delta(struct kgsl_device *device,
 	unsigned int reg, unsigned int *counter);
 
@@ -368,40 +367,6 @@ void adreno_fault_detect_stop(struct adreno_device *adreno_dev)
 	}
 
 	adreno_dev->fast_hang_detect = 0;
-}
-
-/*
- * A workqueue callback responsible for actually turning on the GPU after a
- * touch event. kgsl_pwrctrl_change_state(ACTIVE) is used without any
- * active_count protection to avoid the need to maintain state.  Either
- * somebody will start using the GPU or the idle timer will fire and put the
- * GPU back into slumber.
- */
-static void adreno_input_work(struct work_struct *work)
-{
-	struct adreno_device *adreno_dev = container_of(work,
-			struct adreno_device, input_work);
-	struct kgsl_device *device = KGSL_DEVICE(adreno_dev);
-
-	mutex_lock(&device->mutex);
-
-	device->flags |= KGSL_FLAG_WAKE_ON_TOUCH;
-
-	/*
-	 * Don't schedule adreno_start in a high priority workqueue, we are
-	 * already in a workqueue which should be sufficient
-	 */
-	kgsl_pwrctrl_change_state(device, KGSL_STATE_ACTIVE);
-
-	/*
-	 * When waking up from a touch event we want to stay active long enough
-	 * for the user to send a draw command.  The default idle timer timeout
-	 * is shorter than we want so go ahead and push the idle timer out
-	 * further for this special case
-	 */
-	mod_timer(&device->idle_timer,
-		jiffies + msecs_to_jiffies(adreno_wake_timeout));
-	mutex_unlock(&device->mutex);
 }
 
 /*
