@@ -1938,11 +1938,18 @@ update_task_rq_cpu_cycles(struct task_struct *p, struct rq *rq, int event,
 			 */
 			rq->cc.time = irqtime;
 		else
-			rq->cc.time = wallclock - p->ravg.mark_start;
-		BUG_ON((s64)rq->cc.time < 0);
+			time_delta = wallclock - p->ravg.mark_start;
+		SCHED_BUG_ON((s64)time_delta < 0);
+
+		rq->task_exec_scale = DIV64_U64_ROUNDUP(cycles_delta *
+				topology_get_cpu_scale(NULL, cpu),
+				time_delta * rq->cluster->max_possible_freq);
+		trace_sched_get_task_cpu_cycles(cpu, event,
+				cycles_delta, time_delta, p);
 	}
 
 	p->cpu_cycles = cur_cycles;
+
 }
 
 static inline void run_walt_irq_work(u64 old_window_start, struct rq *rq)
