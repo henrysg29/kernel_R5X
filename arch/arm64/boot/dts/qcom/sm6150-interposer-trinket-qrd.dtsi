@@ -121,6 +121,8 @@
 	qcom,qg-iterm-ma = <100>;
 	qcom,hold-soc-while-full;
 	qcom,linearize-soc;
+	qcom,tcss-enable;
+	qcom,bass-enable;
 };
 
 &pmi632_charger {

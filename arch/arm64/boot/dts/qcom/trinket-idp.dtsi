@@ -700,6 +700,8 @@
 	qcom,qg-iterm-ma = <320>;
 	qcom,hold-soc-while-full;
 	qcom,linearize-soc;
+	qcom,tcss-enable;
+	qcom,bass-enable;
 	qcom,qg-use-s7-ocv;
 //#ifdef CONFIG_PRODUCT_REALME_TRINKET
 //LiYue@BSP.CHG.Basic, 2019/08/06, add for batt_rm
