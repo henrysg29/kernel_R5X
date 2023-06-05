@@ -203,6 +203,20 @@ EXPORT_SYMBOL(sdfat_log_version);
 #define SECS_PER_HOUR   (60 * SECS_PER_MIN)
 #define SECS_PER_DAY    (24 * SECS_PER_HOUR)
 
+/* do not use time_t directly to prevent compile errors on 32bit kernel */
+#define time_do_div(ori, base)	\
+({				\
+	u64 __ori = ori;	\
+	do_div(__ori, base);	\
+	(time_t)__ori;		\
+})
+
+#define time_do_mod(ori, base)		\
+({					\
+	u64 __ori = ori;		\
+	(time_t)do_div(__ori, base);	\
+})
+
 #define MAKE_LEAP_YEAR(leap_year, year)                         \
 	do {                                                    \
 		/* 2100 isn't leap year */                      \
