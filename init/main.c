@@ -141,6 +141,18 @@ static char *ramdisk_execute_command;
 bool static_key_initialized __read_mostly;
 EXPORT_SYMBOL_GPL(static_key_initialized);
 
+bool is_super_part = false;
+
+static int __init super_part_parse_cmdline(char *arg)
+{
+	if (!strcmp(arg, "system") || !strcmp(arg, "system_a") ||
+				!strcmp(arg, "system_b"))
+		is_super_part = true;
+
+	return 0;
+}
+early_param("androidboot.super_partition", super_part_parse_cmdline);
+
 /*
  * If set, this is an indication to the drivers that reset the underlying
  * device before going ahead with the initialization otherwise driver might
