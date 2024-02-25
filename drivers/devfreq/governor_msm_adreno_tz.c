@@ -99,8 +99,8 @@ static ssize_t adrenoboost_save(struct device *dev,
 {
 	int input;
 	sscanf(buf, "%d ", &input);
-	if (input < 0 || input > 4) {
-		adrenoboost = 0;
+	if (input < 0 || input > 3) {
+		adrenoboost = 3;
 	} else {
 		adrenoboost = input;
 	}
@@ -370,10 +370,9 @@ extern int simple_gpu_algorithm(int level, int *val,
 				struct devfreq_msm_adreno_tz_data *priv);
 #endif
 
-// for boost == 4 -- idk, but i got more performance with this :p
-static int lvl_multiplicator_map_4[] = {10,1,1,1,1,11,9    ,1,1};
-static int lvl_divider_map_4[] = {10,1,1,1,1,15,13    ,1,1};
-
+#ifdef CONFIG_ADRENO_IDLER
+extern int adreno_idler(struct devfreq_dev_status stats, struct devfreq *devfreq,
+		 unsigned long *freq);
 #endif
 
 static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
@@ -392,25 +391,18 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 		return result;
 	}
 
+	/* Prevent overflow */
+	if (stats.busy_time >= (1 << 24) || stats.total_time >= (1 << 24)) {
+		stats.busy_time >>= 7;
+		stats.total_time >>= 7;
+	}
+
 	*freq = stats.current_frequency;
-	priv->bin.total_time += stats.total_time;
-#if 1
-	// scale busy time up based on adrenoboost parameter, only if MIN_BUSY exceeded...
-//	if ((unsigned int)(priv->bin.busy_time + stats.busy_time) >= MIN_BUSY && adrenoboost) {
-	if (adrenoboost) {
-		if (adrenoboost == 1) {
-			priv->bin.busy_time += (unsigned int)((stats.busy_time * ( 1 + adrenoboost ) * lvl_multiplicator_map_1[ last_level ]) / lvl_divider_map_1[ last_level ]);
-		} else
-		if (adrenoboost == 2) {
-			priv->bin.busy_time += (unsigned int)((stats.busy_time * ( 1 + adrenoboost ) * lvl_multiplicator_map_2[ last_level ]  * 7 ) / (lvl_divider_map_2[ last_level ] * 10));
-		} else 
-		if (adrenoboost == 3) {
-			priv->bin.busy_time += (unsigned int)((stats.busy_time * ( 1 + adrenoboost ) * lvl_multiplicator_map_3[ last_level ]  * 8 ) / (lvl_divider_map_3[ last_level ] * 10));
-		} else {
-			priv->bin.busy_time += (unsigned int)((stats.busy_time * ( 1 + adrenoboost ) * lvl_multiplicator_map_4[ last_level ]  * 9 ) / (lvl_divider_map_4[ last_level ] * 10));
-		}
-	} else {
-		priv->bin.busy_time += stats.busy_time;
+
+#ifdef CONFIG_ADRENO_IDLER
+	if (adreno_idler(stats, devfreq, freq)) {
+		/* adreno_idler has asked to bail out now */
+		return 0;
 	}
 #endif
 
