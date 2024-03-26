@@ -1131,14 +1131,17 @@ int kern_addr_valid(unsigned long addr)
 
 	return pfn_valid(pte_pfn(*pte));
 }
+EXPORT_SYMBOL_GPL(kern_addr_valid);
 #ifdef CONFIG_SPARSEMEM_VMEMMAP
 #if !ARM64_SWAPPER_USES_SECTION_MAPS
-int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node)
+int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+		struct vmem_altmap *altmap)
 {
 	return vmemmap_populate_basepages(start, end, node);
 }
 #else	/* !ARM64_SWAPPER_USES_SECTION_MAPS */
-int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node)
+int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+		struct vmem_altmap *altmap)
 {
 	unsigned long addr = start;
 	unsigned long next;
@@ -1165,7 +1168,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node)
 			p = vmemmap_alloc_block_buf(PMD_SIZE, node);
 			if (!p) {
 #ifdef CONFIG_MEMORY_HOTPLUG
-				vmemmap_free(start, end);
+				vmemmap_free(start, end, altmap);
 #endif
 				ret = -ENOMEM;
 				break;
