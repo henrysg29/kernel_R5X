@@ -721,10 +721,6 @@ asmlinkage long sys_get_robust_list(int pid,
 asmlinkage long sys_set_robust_list(struct robust_list_head __user *head,
 				    size_t len);
 
-/* kernel/hrtimer.c */
-asmlinkage long sys_nanosleep(struct __kernel_timespec __user *rqtp,
-			      struct __kernel_timespec __user *rmtp);
-
 /* kernel/itimer.c */
 asmlinkage long sys_getitimer(int which, struct itimerval __user *value);
 asmlinkage long sys_setitimer(int which,
@@ -753,15 +749,6 @@ asmlinkage long sys_timer_settime(timer_t timer_id, int flags,
 				const struct itimerspec __user *new_setting,
 				struct itimerspec __user *old_setting);
 asmlinkage long sys_timer_delete(timer_t timer_id);
-asmlinkage long sys_clock_settime(clockid_t which_clock,
-				const struct __kernel_timespec __user *tp);
-asmlinkage long sys_clock_gettime(clockid_t which_clock,
-				struct __kernel_timespec __user *tp);
-asmlinkage long sys_clock_getres(clockid_t which_clock,
-				struct __kernel_timespec __user *tp);
-asmlinkage long sys_clock_nanosleep(clockid_t which_clock, int flags,
-				const struct __kernel_timespec __user *rqtp,
-				struct __kernel_timespec __user *rmtp);
 
 /* kernel/printk.c */
 asmlinkage long sys_syslog(int type, char __user *buf, int len);
@@ -1309,9 +1296,6 @@ asmlinkage long sys_semget(key_t key, int nsems, int semflg);
 asmlinkage long sys_semop(int semid, struct sembuf __user *sops,
 				unsigned nsops);
 asmlinkage long sys_semctl(int semid, int semnum, int cmd, unsigned long arg);
-asmlinkage long sys_semtimedop(int semid, struct sembuf __user *sops,
-				unsigned nsops,
-				const struct timespec __user *timeout);
 asmlinkage long sys_shmat(int shmid, char __user *shmaddr, int shmflg);
 asmlinkage long sys_shmget(key_t key, size_t size, int flag);
 asmlinkage long sys_shmdt(char __user *shmaddr);
@@ -1321,8 +1305,6 @@ asmlinkage long sys_ipc(unsigned int call, int first, unsigned long second,
 
 asmlinkage long sys_mq_open(const char __user *name, int oflag, umode_t mode, struct mq_attr __user *attr);
 asmlinkage long sys_mq_unlink(const char __user *name);
-asmlinkage long sys_mq_timedsend(mqd_t mqdes, const char __user *msg_ptr, size_t msg_len, unsigned int msg_prio, const struct timespec __user *abs_timeout);
-asmlinkage long sys_mq_timedreceive(mqd_t mqdes, char __user *msg_ptr, size_t msg_len, unsigned int __user *msg_prio, const struct timespec __user *abs_timeout);
 asmlinkage long sys_mq_notify(mqd_t mqdes, const struct sigevent __user *notification);
 asmlinkage long sys_mq_getsetattr(mqd_t mqdes, const struct mq_attr __user *mqstat, struct mq_attr __user *omqstat);
 
