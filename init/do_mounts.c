@@ -293,6 +293,8 @@ EXPORT_SYMBOL_GPL(name_to_dev_t);
 
 static int __init root_dev_setup(char *line)
 {
+	if (super_partition)
+		return 0;
 	strlcpy(saved_root_name, line, sizeof(saved_root_name));
 	return 1;
 }
@@ -301,7 +303,7 @@ __setup("root=", root_dev_setup);
 
 static int __init rootwait_setup(char *str)
 {
-	if (*str)
+	if (*str || super_partition)
 		return 0;
 	root_wait = 1;
 	return 1;
