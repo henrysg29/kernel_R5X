@@ -1014,11 +1014,8 @@ tx_fail:
 	}
 
 	/* If we were just busy waiting for TCS, dump the state and return */
-	if (ret == -EBUSY) {
-		dev_dbg(chan->cl->dev,
-				"TCS Busy, retrying RPMH message send\n");
+	if (ret == -EBUSY)
 		ret = -EAGAIN;
-	}
 
 	return ret;
 }
