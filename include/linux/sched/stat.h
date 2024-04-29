@@ -30,10 +30,10 @@ extern u64 sched_get_cpu_last_busy_time(int cpu);
 static inline void sched_update_nr_prod(int cpu, long delta, bool inc)
 {
 }
-static inline unsigned int sched_get_cpu_util(int cpu)
-{
-	return 0;
-}
+//static inline unsigned int sched_get_cpu_util(int cpu)
+//{
+//	return 0;
+//}
 static inline u64 sched_get_cpu_last_busy_time(int cpu)
 {
 	return 0;
