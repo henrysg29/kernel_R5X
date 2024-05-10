@@ -2535,6 +2535,9 @@ static int __net_init tcp_sk_init(struct net *net)
 	//add for [BUGID],disable tcp random timestamp,some networks limit tcp syn before login
 	net->ipv4.sysctl_tcp_random_timestamp = 0;
 	#endif /* CONFIG_PRODUCT_REALME_TRINKET */
+	net->ipv4.sysctl_tcp_timestamps = 1;
+	net->ipv4.sysctl_tcp_early_retrans = 3;
+
 	return 0;
 fail:
 	tcp_sk_exit(net);
