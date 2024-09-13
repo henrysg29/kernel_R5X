@@ -9198,6 +9198,7 @@ enum group_type {
 #define LBF_NEED_BREAK	0x02
 #define LBF_DST_PINNED  0x04
 #define LBF_SOME_PINNED	0x08
+#define LBF_CROSS_CLUSTER 0x10
 #define LBF_IGNORE_BIG_TASKS 0x100
 #define LBF_IGNORE_PREFERRED_CLUSTER_TASKS 0x200
 #define LBF_IGNORE_STUNE_BOOSTED_TASKS 0x400
@@ -9246,21 +9247,17 @@ static int task_hot(struct task_struct *p, struct lb_env *env)
 		return 0;
 
 	/*
-	 * Buddy candidates are cache hot:
+	 * Buddy candidates are cache hot if CPUs doesn't share a cache:
 	 */
-	if (sched_feat(CACHE_HOT_BUDDY) && env->dst_rq->nr_running &&
+	if ((env->flags & LBF_CROSS_CLUSTER) && env->dst_rq->nr_running &&
 			(&p->se == cfs_rq_of(&p->se)->next ||
 			 &p->se == cfs_rq_of(&p->se)->last))
 		return 1;
 
-	if (sysctl_sched_migration_cost == -1)
-		return 1;
-	if (sysctl_sched_migration_cost == 0)
-		return 0;
-
 	delta = rq_clock_task(env->src_rq) - p->se.exec_start;
 
-	return delta < (s64)sysctl_sched_migration_cost;
+	return (env->flags & LBF_CROSS_CLUSTER) ?
+		delta <= (s64)sysctl_sched_min_granularity : 0;
 }
 
 #ifdef CONFIG_NUMA_BALANCING
@@ -11202,6 +11199,12 @@ redo:
 
 	env.src_cpu = busiest->cpu;
 	env.src_rq = busiest;
+
+	if (capacity_orig_of(env.src_cpu) !=
+			capacity_orig_of(env.dst_cpu))
+		env.flags &= ~LBF_CROSS_CLUSTER;
+	else
+		env.flags |= LBF_CROSS_CLUSTER;
 
 	ld_moved = 0;
 	if (busiest->nr_running > 1) {
