@@ -7555,16 +7555,7 @@ static inline bool task_fits_capacity(struct task_struct *p,
 					long capacity,
 					int cpu)
 {
-	unsigned int margin;
-
-	/*
-	 * Derive upmigration/downmigrate margin wrt the src/dest
-	 * CPU.
-	 */
-	if (capacity_orig_of(task_cpu(p)) > capacity_orig_of(cpu))
-		margin = sched_capacity_margin_down[cpu];
-	else
-		margin = sched_capacity_margin_up[task_cpu(p)];
+	unsigned long margin = capacity_margin_of(task_cpu(p));
 
 	return capacity * 128 > boosted_task_util(p) * margin;
 }
@@ -8173,8 +8164,8 @@ static int wake_cap(struct task_struct *p, int cpu, int prev_cpu)
 
 bool __cpu_overutilized(int cpu, int delta)
 {
-	return (capacity_orig_of(cpu) * 128) <
-		((cpu_util(cpu) + delta) * sched_capacity_margin_up[cpu]);
+	return (capacity_orig_of(cpu) * 1024) <
+		((cpu_util(cpu) + delta) * capacity_margin_of(cpu));
 }
 
 bool cpu_overutilized(int cpu)
@@ -8428,7 +8419,7 @@ static int find_energy_efficient_cpu(struct sched_domain *sd,
 			 * fit without making the CPU overutilized.
 			 */
 			spare = capacity_spare_without(cpu_iter, p);
-			if (spare * 128 < sched_capacity_margin_up[cpu_iter] *
+			if (spare * 1024 < capacity_margin_of(cpu_iter) *
 							task_util_est(p))
 				continue;
 
@@ -10600,8 +10591,8 @@ next_group:
 	 * needs to be done at the next sched domain level as well.
 	 */
 	if (lb_sd_parent(env->sd) &&
-	    sds->total_capacity * 128 < sds->total_util *
-			sched_capacity_margin_up[group_first_cpu(sds->local)])
+	    sds->total_capacity * 1024 < sds->total_util *
+			capacity_margin_of(group_first_cpu(sds->local)))
 		set_sd_overutilized(env->sd->parent);
 }
 
