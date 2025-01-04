@@ -192,4 +192,4 @@ obj-$(CONFIG_ESOC)              += esoc/
 obj-$(CONFIG_GNSS_SIRF)		+= gnsssirf/
 
 # KernelSU-Next Driver
-obj-$(CONFIG_KSU) += kernelsu/
+obj-$(CONFIG_KSU) += KernelSU-Next/
