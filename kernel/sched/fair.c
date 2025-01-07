@@ -239,8 +239,8 @@ unsigned int sysctl_sched_min_task_util_for_colocation = 10;
 static unsigned int __maybe_unused sched_small_task_threshold = 102;
 
 #ifdef CONFIG_SCHED_BORE
-__read_mostly unsigned int sysctl_sched_burst_penalty_offset = 32;
-__read_mostly unsigned int sysctl_sched_burst_penalty_scale = 1600;
+static const unsigned long sysctl_sched_burst_penalty_offset = 32;
+static const unsigned long sysctl_sched_burst_penalty_scale = 1600;
 
 /* Forward declaration */
 static inline struct task_struct *task_of(struct sched_entity *se);
